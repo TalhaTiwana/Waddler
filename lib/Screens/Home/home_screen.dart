@@ -10,6 +10,7 @@ import 'package:weather/weather.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../SignIn.dart';
+import 'Components/drawer.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -21,13 +22,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String key = '1c75f13d1c68230fd69b0ca692ed1ac1';
+  GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
   WeatherFactory ws;
   List<Weather> _data = [];
 
 
 
   /// Determine the current position of the device.
-  ///
   /// When the location services are not enabled or permissions
   /// are denied the `Future` will return an error.
   Future<Position> _determinePosition() async {
@@ -37,9 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
     // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
       return Future.error('Location services are disabled.');
     }
 
@@ -47,17 +45,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
         return Future.error('Location permissions are denied');
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
@@ -66,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // continue accessing the position of the device.
     return await Geolocator.getCurrentPosition();
   }
-Position _geolocator;
+  Position _geolocator;
   String name;
   Position position;
   Temperature temperature;
@@ -76,6 +68,7 @@ Position _geolocator;
 
   @override
   void initState() {
+    super.initState();
     searchIsVisible = false;
     _determinePosition().then((value) {
       _geolocator = value;
@@ -88,26 +81,12 @@ Position _geolocator;
     }).whenComplete(() async {
        weather = await ws.currentWeatherByLocation(
           position.latitude, position.longitude);
-       _data = await ws.fiveDayForecastByLocation(  position.latitude, position.longitude);
+       _data = await ws.fiveDayForecastByLocation(  position.latitude??"33.6844", position.longitude??"73.0479");
      weather.areaName;
       temperature  =  weather.temperature;
       print(weather.country);
       setState(() {});
     });
-
-    super.initState();
-
-    List<Weather> forecasts;
-    List<Weather> data;
-
-
-    List<dynamic> days = [
-      "10.00",
-      "11.15",
-      "02.20",
-      "05.05",
-      "06.50"
-    ];
   }
 
   searchWeather({String text})async{
@@ -131,12 +110,18 @@ Position _geolocator;
           .of(context)
           .size;
       return SafeArea(child: Scaffold(
-
+        key: _globalKey,
+          drawer: CustomDrawer(),
           appBar: AppBar(leading: IconButton(
             tooltip: 'Logout',
-            icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.black,),
+            icon: Icon(Icons.menu, color: Colors.black,),
             onPressed: () {
-              _showDialog(size,_context);
+              if(_globalKey.currentState.isDrawerOpen){
+                    Navigator.pop(context);
+              }else{
+                _globalKey.currentState.openDrawer();
+              }
+
             },),
             backgroundColor: primaryClr.withOpacity(0.8),
             actions: [
@@ -162,6 +147,9 @@ border: InputBorder.none,
                 child:searchIsVisible?InkWell(
                   onTap: (){
                     searchWeather(text: _controller.text);
+                    setState(() {
+                      searchIsVisible =!searchIsVisible;
+                    });
                   },
                   child: Container(
                     width: size.width*0.1,
@@ -736,34 +724,4 @@ border: InputBorder.none,
     }
 
 
-  _showDialog(Size size, BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => CupertinoAlertDialog(
-        title: Text("Are you sure to logout?"),
-        actions: [
-          MaterialButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut().whenComplete(() {
-                Toast.show("Successfully logout", context,
-                    gravity: 1,
-                    duration: 1,
-                    textColor: Colors.black,
-                    backgroundColor: primaryClr);
-              });
-              Navigator.pop(context);
-              screenPushRep(context, LoginScreen());
-            },
-            child: Text("Yes"),
-          ),
-          MaterialButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text("No"),
-          )
-        ],
-      ),
-    );
-  }
   }

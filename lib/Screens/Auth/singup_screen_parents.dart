@@ -1,15 +1,14 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:waddler/Common/common_functions.dart';
+import 'package:waddler/Providers/auth_providers.dart';
 import 'package:waddler/Screens/Auth/singup_screen_child.dart';
 import 'package:waddler/Style/colors.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 import 'Components/custom_text_field.dart';
 
@@ -21,38 +20,29 @@ class SignUpScreenParents extends StatefulWidget {
 }
 
 class _SignUpScreenParentsState extends State<SignUpScreenParents> {
-  // FirebaseFirestore _ref = FirebaseFirestore.instance;
-  // firebase_storage.FirebaseStorage storage =
-  //     firebase_storage.FirebaseStorage.instance;
-  //
-  // final imagePicker = ImagePicker();
-  // File imageFile1;
-  // var imagePath1;
-  // var image1;
-  // String link1;
-  // String buttonText;
-  //
-  // Future getImage() async {
-  //   image1 = await imagePicker.getImage(
-  //       preferredCameraDevice: CameraDevice.front, source: ImageSource.gallery);
-  //   setState(() {
-  //     imagePath1 = image1.path;
-  //     imageFile1 = File(image1.path);
-  //   });
-  // }
-  //
-  // firebase_storage.Reference ref1;
-  // uploadImageToFireStore() async {
-  //   ref1 = firebase_storage.FirebaseStorage.instance
-  //       .ref()
-  //       .child("Users")
-  //       .child(FirebaseAuth.instance.currentUser.uid);
-  //   if (imageFile1 != null) {
-  //     ref1.putFile(imageFile1).whenComplete(() {
-  //       print("uploaded");
-  //     }).catchError((onError) {});
-  //   }
-  // }
+
+
+
+  final imagePicker = ImagePicker();
+  var imagePath1;
+  var image1;
+  String link1;
+  String buttonText;
+
+  Future getImage(BuildContext _buildContext,Size size) async {
+    image1 = await imagePicker.getImage(
+        preferredCameraDevice: CameraDevice.front, source: ImageSource.gallery);
+    Provider.of<AUthProvider>(_buildContext,listen: false).imageFileSet(File(image1.path));
+    setState(() {
+      imagePath1 = image1.path;
+
+    });
+    settingModalBottomSheetAddress(_buildContext, size);
+  }
+
+
+
+
 
   TextEditingController _controllerFName = TextEditingController();
   TextEditingController _controllerMName = TextEditingController();
@@ -75,17 +65,30 @@ class _SignUpScreenParentsState extends State<SignUpScreenParents> {
 
   String errorOnPass;
   String error;
-
+  bool state;
+  bool uploadButtonState;
   @override
   void initState() {
     super.initState();
-    // setState(() {
-    //   buttonText = "Upload parent Image";
-    // });
+    state = true;
+    uploadButtonState = true;
+
+    buttonText = "Upload parent Image";
+
   }
 
   @override
   Widget build(BuildContext context) {
+    if(state){
+      Future.delayed(Duration(seconds: 2),(){
+        Provider.of<AUthProvider>(context,listen: false).imageFileSet(null);
+        setState(() {
+          state = false;
+        });
+      });
+
+    }
+
     Size size = MediaQuery.of(context).size;
     return SafeArea(
         child: Scaffold(
@@ -224,47 +227,48 @@ class _SignUpScreenParentsState extends State<SignUpScreenParents> {
                   errorCheck(9, value);
                 },
               ),
-              // InkWell(
-              //   onTap: () {
-              //     settingModalBottomSheetAddress(context, size);
-              //   },
-              //   child: Container(
-              //       margin: EdgeInsets.only(
-              //           top: size.height * 0.025,
-              //           left: size.width * 0.01,
-              //           right: size.width * 0.01),
-              //       alignment: Alignment.center,
-              //       height: size.height * 0.058,
-              //       width: size.width,
-              //       decoration: BoxDecoration(
-              //           color: Colors.white,
-              //           borderRadius: BorderRadius.circular(20),
-              //           border: Border(
-              //             bottom: BorderSide(
-              //               color: Colors.black,
-              //               width: 1,
-              //             ),
-              //             right: BorderSide(
-              //               color: Colors.black,
-              //               width: 1,
-              //             ),
-              //             left: BorderSide(
-              //               color: Colors.black,
-              //               width: 1,
-              //             ),
-              //             top: BorderSide(
-              //               color: Colors.black,
-              //               width: 1,
-              //             ),
-              //           )),
-              //       child: Text(
-              //         "$buttonText",
-              //         style: GoogleFonts.ubuntu(
-              //             color: Colors.black,
-              //             fontWeight: FontWeight.w600,
-              //             fontSize: size.width * 0.045),
-              //       )),
-              // ),
+              InkWell(
+                onTap:uploadButtonState? () {
+                  getImage(context,size);
+
+                }:null,
+                child: Container(
+                    margin: EdgeInsets.only(
+                        top: size.height * 0.025,
+                        left: size.width * 0.01,
+                        right: size.width * 0.01),
+                    alignment: Alignment.center,
+                    height: size.height * 0.058,
+                    width: size.width,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.black,
+                            width: 1,
+                          ),
+                          right: BorderSide(
+                            color: Colors.black,
+                            width: 1,
+                          ),
+                          left: BorderSide(
+                            color: Colors.black,
+                            width: 1,
+                          ),
+                          top: BorderSide(
+                            color: Colors.black,
+                            width: 1,
+                          ),
+                        )),
+                    child: Text(
+                      "$buttonText",
+                      style: GoogleFonts.ubuntu(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                          fontSize: size.width * 0.045),
+                    )),
+              ),
               InkWell(
                 onTap: () {
                   continueToNext(context);
@@ -440,7 +444,8 @@ class _SignUpScreenParentsState extends State<SignUpScreenParents> {
         _controllerMName.text.isNotEmpty &&
         _controllerOffAddress.text.isNotEmpty &&
         _controllerPassword.text.isNotEmpty &&
-        _controllerPhn.text.isNotEmpty) {
+        _controllerPhn.text.isNotEmpty &&
+        Provider.of<AUthProvider>(context,listen: false).imageFileGet()!=null){
       screenPush(
           context,
           SignUpScreenChild(
@@ -471,73 +476,91 @@ class _SignUpScreenParentsState extends State<SignUpScreenParents> {
         );
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       } else {
-        final snackBar = SnackBar(
-          content: Text(
-            "$error",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-          ),
-          duration: Duration(seconds: 1, milliseconds: 500),
-          backgroundColor: Colors.red[900].withOpacity(1),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        if(  Provider.of<AUthProvider>(context,listen: false).imageFileGet()==null){
+          final snackBar = SnackBar(
+            content: Text(
+              "Please select parent image",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+            ),
+            duration: Duration(seconds: 1, milliseconds: 500),
+            backgroundColor: Colors.red[900].withOpacity(1),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }else{
+          final snackBar = SnackBar(
+            content: Text(
+              "$error",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+            ),
+            duration: Duration(seconds: 1, milliseconds: 500),
+            backgroundColor: Colors.red[900].withOpacity(1),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
+
       }
     }
   }
 
-  // settingModalBottomSheetAddress(BuildContext context, Size size) {
-  //   showModalBottomSheet(
-  //       isScrollControlled: false,
-  //       context: context,
-  //       builder: (BuildContext buildContext) {
-  //         return Container(
-  //           height: size.height * 0.4,
-  //           color: Colors.transparent, //could change this to Color(0xFF737373),
-  //           //so you don't have to change MaterialApp canvasColor
-  //           child: new Container(
-  //             padding: EdgeInsets.only(right: size.width * 0.03),
-  //             decoration: new BoxDecoration(
-  //                 color: Colors.white,
-  //                 borderRadius: new BorderRadius.only(
-  //                     topLeft: const Radius.circular(13.0),
-  //                     topRight: const Radius.circular(13.0))),
-  //             child: Column(
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //               children: [
-  //                 Container(
-  //                   height: size.height * 0.2,
-  //                   child: imageFile1 != null
-  //                       ? Image.file(imageFile1)
-  //                       :link1!=null? Image.network(link1):Container(),
-  //                 ),
-  //
-  //                 SizedBox(
-  //                   height: size.height*0.02,
-  //                 ),
-  //                 InkWell(
-  //                   onTap: () {
-  //                     continueToNext(context);
-  //                   },
-  //                   child: Container(
-  //                       margin: EdgeInsets.only(top: size.height * 0.025),
-  //                       alignment: Alignment.center,
-  //                       height: size.height * 0.06,
-  //                       width: size.width,
-  //                       decoration: BoxDecoration(
-  //                           color: primaryDarkClr,
-  //                           borderRadius: BorderRadius.circular(20)),
-  //                       child: Text(
-  //                         "Upload",
-  //                         style: GoogleFonts.ubuntu(
-  //                             color: Colors.white,
-  //                             fontWeight: FontWeight.w600,
-  //                             fontSize: size.width * 0.045),
-  //                       )),
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         );
-  //       });
-  // }
+  settingModalBottomSheetAddress(BuildContext context, Size size) {
+    showModalBottomSheet(
+        isScrollControlled: false,
+        context: context,
+        builder: (BuildContext buildContext) {
+          return Container(
+            height: size.height * 0.4,
+            color: Colors.transparent,
+            child: new Container(
+              padding: EdgeInsets.only(right: size.width * 0.03),
+              decoration: new BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: new BorderRadius.only(
+                      topLeft: const Radius.circular(13.0),
+                      topRight: const Radius.circular(13.0))),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(top: size.height*0.01),
+                    height: size.height * 0.22,
+                    child:  Provider.of<AUthProvider>(context,listen: false).imageFileGet()!= null
+                        ? Image.file(Provider.of<AUthProvider>(context,listen: false).imageFileGet())
+                        :link1!=null? Image.network(link1):Container(),
+                  ),
+
+                  SizedBox(
+                    height: size.height*0.02,
+                  ),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        buttonText = "Selected";
+                        uploadButtonState = false;
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                        margin: EdgeInsets.only(top: size.height * 0.025),
+                        alignment: Alignment.center,
+                        height: size.height * 0.06,
+                        width: size.width,
+                        decoration: BoxDecoration(
+                            color: primaryDarkClr,
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Text(
+                          "Okay",
+                          style: GoogleFonts.ubuntu(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: size.width * 0.045),
+                        )),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
 }

@@ -1,12 +1,17 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:waddler/Common/common_functions.dart';
 import 'package:waddler/Providers/auth_providers.dart';
 import 'package:waddler/Services/firebase_auth.dart';
 import 'package:waddler/Services/firebase_store.dart';
 import 'package:waddler/Style/colors.dart';
-
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'Components/custom_text_field.dart';
 
 class SignUpScreenChild extends StatefulWidget {
@@ -38,8 +43,6 @@ class SignUpScreenChild extends StatefulWidget {
 
 class _SignUpScreenChildState extends State<SignUpScreenChild> {
   TextEditingController _controller = TextEditingController();
-  TextEditingController _controllerAge = TextEditingController();
-  TextEditingController _controllerBlood = TextEditingController();
 
   String bloodGroup;
   String bloodGroupValue;
@@ -48,11 +51,50 @@ class _SignUpScreenChildState extends State<SignUpScreenChild> {
   String errorOnAge;
   String errorOnBlood;
   String childsAge;
+  String uploadImageBtnTxt;
   String _error;
+
+  final imagePicker = ImagePicker();
+  var imagePath1;
+  var image1;
+  String link1;
+  bool picState;
+  bool state;
+
+
+  Future getChildImage(BuildContext _buildContext, Size size) async {
+    image1 = await imagePicker.getImage(
+        preferredCameraDevice: CameraDevice.front, source: ImageSource.gallery);
+    Provider.of<AUthProvider>(_buildContext, listen: false)
+        .imageFileChildSet(File(image1.path));
+    setState(() {
+      imagePath1 = image1.path;
+      uploadImageBtnTxt = "Selected";
+      picState = false;
+    });
+  }
+
+
+ @override
+  void initState() {
+    super.initState();
+    picState = true;
+    state = true;
+    uploadImageBtnTxt = "Upload Child's Picture";
+ }
+
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+
+    if(state){
+      Provider.of<AUthProvider>(context,listen: false).imageFileChildSet(null);
+      setState(() {
+        state = false;
+      });
+    }
+
     return SafeArea(
         child: Scaffold(
       backgroundColor: bgColor,
@@ -74,7 +116,7 @@ class _SignUpScreenChildState extends State<SignUpScreenChild> {
         margin: EdgeInsets.symmetric(horizontal: size.width * 0.06),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
                   margin: EdgeInsets.only(
@@ -93,33 +135,46 @@ class _SignUpScreenChildState extends State<SignUpScreenChild> {
                 prefixIcon: Icons.person,
                 keyBoardType: TextInputType.text,
                 onChange: (value) {
-                  checkError(1,value);
+                  checkError(1, value);
                 },
               ),
-
-              childsAge!=null?Container(
-                margin: EdgeInsets.only(top: size.height*0.02,left: size.width*0.02),
-                child: Text("Child's Age",style: GoogleFonts.zillaSlab(
-                  color: Colors.black,
-                  fontSize: size.width*0.045,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 1,
-                ),),
-              ):Container(),
+              childsAge != null
+                  ? Container(
+                      margin: EdgeInsets.only(
+                          top: size.height * 0.02, left: size.width * 0.02),
+                      child: Text(
+                        "Child's Age",
+                        style: GoogleFonts.zillaSlab(
+                          color: Colors.black,
+                          fontSize: size.width * 0.045,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    )
+                  : Container(),
               Container(
-                margin:childsAge==null? EdgeInsets.only(top: size.height*0.02,left: size.width*0.024,
-                    right:  size.width*0.024):null,
+                margin: childsAge == null
+                    ? EdgeInsets.only(
+                        top: size.height * 0.02,
+                        left: size.width * 0.024,
+                        right: size.width * 0.024)
+                    : null,
                 child: new DropdownButton<String>(
                   iconEnabledColor: primaryClr,
                   isExpanded: true,
                   elevation: 2,
-                  hint: Text("${childsAge==null?"Child's Age":"  "+childsAge}",style:GoogleFonts.zillaSlab(
-                    color: Colors.black,
-                    fontSize: size.width*0.045,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 1,
-                  ),),
-                  items: <String>['3', '4', '5', '6','7','8'].map((String value) {
+                  hint: Text(
+                    "${childsAge == null ? "Child's Age" : "  " + childsAge}",
+                    style: GoogleFonts.zillaSlab(
+                      color: Colors.black,
+                      fontSize: size.width * 0.045,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  items: <String>['3', '4', '5', '6', '7', '8']
+                      .map((String value) {
                     return new DropdownMenuItem<String>(
                       value: value,
                       child: new Text(value),
@@ -132,29 +187,41 @@ class _SignUpScreenChildState extends State<SignUpScreenChild> {
                   },
                 ),
               ),
-
-              bloodGroup!=null?Container(
-                margin: EdgeInsets.only(top: size.height*0.02,left: size.width*0.02),
-                child: Text("Blood Group",style: GoogleFonts.zillaSlab(
-                  color: Colors.black,
-                  fontSize: size.width*0.045,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 1,
-                ),),
-              ):Container(),
+              bloodGroup != null
+                  ? Container(
+                      margin: EdgeInsets.only(
+                          top: size.height * 0.02, left: size.width * 0.02),
+                      child: Text(
+                        "Blood Group",
+                        style: GoogleFonts.zillaSlab(
+                          color: Colors.black,
+                          fontSize: size.width * 0.045,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    )
+                  : Container(),
               Container(
-                margin:bloodGroup==null?EdgeInsets.only(top: size.height*0.02,left: size.width*0.024,
-                    right:  size.width*0.024):null,
+                margin: bloodGroup == null
+                    ? EdgeInsets.only(
+                        top: size.height * 0.02,
+                        left: size.width * 0.024,
+                        right: size.width * 0.024)
+                    : null,
                 child: new DropdownButton<String>(
                   iconEnabledColor: primaryClr,
                   isExpanded: true,
                   elevation: 2,
-                  hint: Text("${bloodGroup==null?"Blood Group":"  "+bloodGroup}",style:GoogleFonts.zillaSlab(
-                    color: Colors.black,
-                    fontSize: size.width*0.045,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 1,
-                  ),),
+                  hint: Text(
+                    "${bloodGroup == null ? "Blood Group" : "  " + bloodGroup}",
+                    style: GoogleFonts.zillaSlab(
+                      color: Colors.black,
+                      fontSize: size.width * 0.045,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 1,
+                    ),
+                  ),
                   items: <String>['A', 'B', 'AB', 'O'].map((String value) {
                     return new DropdownMenuItem<String>(
                       value: value,
@@ -168,28 +235,37 @@ class _SignUpScreenChildState extends State<SignUpScreenChild> {
                   },
                 ),
               ),
-
               Visibility(
-                visible: bloodGroup==null?false:true,
+                visible: bloodGroup == null ? false : true,
                 child: Container(
-                  margin: EdgeInsets.only(top: size.height*0.02,left: size.width*0.024,
-                  right:  size.width*0.024),
+                  margin: EdgeInsets.only(
+                      top: size.height * 0.02,
+                      left: size.width * 0.024,
+                      right: size.width * 0.024),
                   child: new DropdownButton<String>(
                     iconEnabledColor: primaryClr,
                     isExpanded: true,
                     elevation: 2,
-                    hint:bloodGroupValue==null?Text("Positive or Negative",style:GoogleFonts.zillaSlab(
-                      color: Colors.black,
-                      fontSize: size.width*0.045,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 1,
-                    ),):Text("  $bloodGroupValue",style:GoogleFonts.zillaSlab(
-                      color: Colors.black,
-                      fontSize: size.width*0.07,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 1,
-                    ),),
-                    items: <String>["+","-"].map((String value) {
+                    hint: bloodGroupValue == null
+                        ? Text(
+                            "Positive or Negative",
+                            style: GoogleFonts.zillaSlab(
+                              color: Colors.black,
+                              fontSize: size.width * 0.045,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 1,
+                            ),
+                          )
+                        : Text(
+                            "  $bloodGroupValue",
+                            style: GoogleFonts.zillaSlab(
+                              color: Colors.black,
+                              fontSize: size.width * 0.07,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                    items: <String>["+", "-"].map((String value) {
                       return new DropdownMenuItem<String>(
                         value: value,
                         child: new Text(value),
@@ -203,8 +279,6 @@ class _SignUpScreenChildState extends State<SignUpScreenChild> {
                   ),
                 ),
               ),
-
-
               Container(
                 margin: EdgeInsets.only(top: size.height * 0.01),
                 child: Row(
@@ -266,6 +340,32 @@ class _SignUpScreenChildState extends State<SignUpScreenChild> {
                   ],
                 ),
               ),
+              picState? InkWell(
+                onTap: () {
+               getChildImage(context, size);
+                },
+                child: Container(
+                    margin: EdgeInsets.only(top: size.height * 0.025),
+                    alignment: Alignment.center,
+                    height: size.height * 0.06,
+                    width: size.width,
+                    decoration: BoxDecoration(
+                        color: primaryDarkClr,
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Text(
+                      "$uploadImageBtnTxt",
+                      style: GoogleFonts.ubuntu(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: size.width * 0.045),
+                    )),
+              ): Container(
+                margin: EdgeInsets.only(top: size.height*0.01),
+                height: size.height * 0.22,
+                child:  Provider.of<AUthProvider>(context,listen: false).imageFileChildGet()!= null
+                    ? Image.file(Provider.of<AUthProvider>(context,listen: false).imageFileChildGet())
+                    :Container(),
+              ),
               InkWell(
                 onTap: () {
                   signUp(context);
@@ -293,25 +393,25 @@ class _SignUpScreenChildState extends State<SignUpScreenChild> {
     ));
   }
 
-  checkError(int code , String text){
-    if(code == 1){
-      if(text.length<2){
+  checkError(int code, String text) {
+    if (code == 1) {
+      if (text.length < 2) {
         setState(() {
           errorOnNm = "Name is short";
           _error = "Name is short";
         });
-      }else {
-       setState(() {
-         errorOnNm = null;
-       });
+      } else {
+        setState(() {
+          errorOnNm = null;
+        });
       }
-    }else if(code == 2){
-      if(![3,4,5,6,7,8].toString().contains(text)){
+    } else if (code == 2) {
+      if (![3, 4, 5, 6, 7, 8].toString().contains(text)) {
         setState(() {
           errorOnAge = "Age is not valid";
-          _error= "Age is not valid";
+          _error = "Age is not valid";
         });
-      }else {
+      } else {
         setState(() {
           errorOnAge = null;
           _error = null;
@@ -320,44 +420,102 @@ class _SignUpScreenChildState extends State<SignUpScreenChild> {
     }
   }
 
-
-  signUp(BuildContext context)async{
-    if(bloodGroupValue!=null && errorOnAge==null  && errorOnNm == null
-      && _controller.text.isNotEmpty &&
-        childsAge!=null && gender!=null
-    ){
-
-    var data = await  Authentication().signUpWithEmailAndPasswords(email: widget.email.toString().replaceAll(" ", ""),password: widget.password.toString().replaceAll(" ", ""),context: context);
-          if(data!=null){
-            Map<String,dynamic> map ={
-              "fName":widget.fName,
-              "mName":widget.mName,
-              "phnNum":widget.phnNum,
-              "fCNIC":widget.fCNIC,
-              "mCNIC":widget.mCNIC,
-              "homeAd":widget.homeAddress,
-              "officialAd":widget.officialAddress,
-              "email":widget.email,
-              "password":widget.password,
-              "childName":_controller.text.toString(),
-              "childAge":_controllerAge.text.toString(),
-              "bloodGroup":"$bloodGroup $bloodGroupValue"
-            };
-            Storage().signUpDataToFireStore(map);
-            final snackBar = SnackBar(content: Text("Check your email Box",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500),),duration: Duration(seconds:1,milliseconds: 500),backgroundColor: primaryDarkClr,);
-            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-            Navigator.pop(context);
-            Navigator.pop(context);
-          }else{
-            final snackBar = SnackBar(content: Text("${Provider.of<AUthProvider>(context,listen: false).signUpErrorGet()}",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500),),duration: Duration(seconds:1,milliseconds: 500),backgroundColor: Colors.red[900].withOpacity(1),);
-            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-          }
-
-    }
-    else{
-      final snackBar = SnackBar(content: Text("Something is missing",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500),),duration: Duration(seconds:1,milliseconds: 500),backgroundColor: Colors.red[900].withOpacity(1),);
+  signUp(BuildContext context) async {
+    if (bloodGroupValue != null &&
+        errorOnAge == null &&
+        errorOnNm == null &&
+        _controller.text.isNotEmpty &&
+        childsAge != null &&
+        gender != null &&
+        Provider.of<AUthProvider>(context,listen: false).imageFileChildGet() != null){
+      var data = await Authentication().signUpWithEmailAndPasswords(
+          email: widget.email.toString().replaceAll(" ", ""),
+          password: widget.password.toString().replaceAll(" ", ""),
+          context: context);
+      if (data != null) {
+        Map<String, dynamic> map = {
+          "fName": widget.fName,
+          "mName": widget.mName,
+          "phnNum": widget.phnNum,
+          "fCNIC": widget.fCNIC,
+          "mCNIC": widget.mCNIC,
+          "homeAd": widget.homeAddress,
+          "officialAd": widget.officialAddress,
+          "email": widget.email,
+          "password": widget.password,
+          "childName": _controller.text.toString(),
+          "childAge": childsAge,
+          "bloodGroup": "$bloodGroup $bloodGroupValue"
+        };
+        Storage().signUpDataToFireStore(map);
+        uploadImageToFireStore(context);
+        final snackBar = SnackBar(
+          content: Text(
+            "Check your email Box",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+          ),
+          duration: Duration(seconds: 1, milliseconds: 500),
+          backgroundColor: primaryDarkClr,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        Navigator.pop(context);
+        Navigator.pop(context);
+      } else {
+        final snackBar = SnackBar(
+          content: Text(
+            "${Provider.of<AUthProvider>(context, listen: false).signUpErrorGet()}",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+          ),
+          duration: Duration(seconds: 1, milliseconds: 500),
+          backgroundColor: Colors.red[900].withOpacity(1),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    } else {
+      final snackBar = SnackBar(
+        content: Text(
+          "Something is missing",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+        ),
+        duration: Duration(seconds: 1, milliseconds: 500),
+        backgroundColor: Colors.red[900].withOpacity(1),
+      );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
+  firebase_storage.Reference refParent;
+  firebase_storage.Reference refChild;
+
+  uploadImageToFireStore(BuildContext _buildContext) async {
+    refParent = firebase_storage.FirebaseStorage.instance
+        .ref()
+        .child("Users").child(FirebaseAuth.instance.currentUser.uid)
+        .child(FirebaseAuth.instance.currentUser.uid + "parent");
+
+    refChild = firebase_storage.FirebaseStorage.instance
+        .ref()
+        .child("Users").child(FirebaseAuth.instance.currentUser.uid)
+        .child(FirebaseAuth.instance.currentUser.uid + "child");
+
+    refParent
+        .putFile(Provider.of<AUthProvider>(context,listen: false).imageFileGet())
+        .whenComplete(() {
+          print("Parent pic uploaded");
+    });
+
+    refChild
+        .putFile(Provider.of<AUthProvider>(context,listen: false).imageFileChildGet())
+        .whenComplete(() {
+      print("Child pic uploaded");
+
+    });
+    if (Provider.of<AUthProvider>(_buildContext,listen: false).imageFileGet() != null) {
+      refParent
+          .putFile(Provider.of<AUthProvider>(_buildContext,listen: false).imageFileGet())
+          .whenComplete(() {
+        print("uploaded");
+      }).catchError((onError) {});
+    }
+  }
 }
