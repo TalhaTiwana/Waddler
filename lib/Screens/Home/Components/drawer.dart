@@ -1,5 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:toast/toast.dart';
 import 'package:waddler/Common/common_functions.dart';
 import 'package:waddler/Screens/Auth/login_screen.dart';
+import 'package:waddler/Screens/FetchingDaycareCenters/Fetching_daycare_centers.dart';
 import 'package:waddler/Screens/Profile/profile.dart';
 import 'package:waddler/Style/colors.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -57,7 +56,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
       width: size.width*0.7,
       height: size.height,
         decoration: BoxDecoration(
-          color: primaryClr
+          color: Colors.white
         ),
       child: Column(
         children: [
@@ -137,6 +136,26 @@ class _CustomDrawerState extends State<CustomDrawer> {
               ),
             ),
           ),
+
+          InkWell(
+            onTap: (){
+              Navigator.pop(context);
+              screenPush(context, FDC());
+            },
+            child: Container(
+              margin: EdgeInsets.only(left: size.width*0.04,top: size.height*0.01,bottom: size.height*0.02),
+              child: Row(
+                children: [
+                  Icon(Icons.home,color: Colors.black,),
+                  SizedBox(
+                    width: size.width*0.02,
+                  ),
+                  Text("Daycare Center",style: TextStyle(color: Colors.black,fontSize: size.width*0.045),),
+                ],
+              ),
+            ),
+          ),
+
           InkWell(
             onTap: (){
               _showDialog(size,context);
@@ -154,44 +173,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
               ),
             ),
           ),
-          // Container(
-          //   margin: EdgeInsets.only(left: size.width*0.04,top: size.height*0.01,bottom: size.height*0.02),
-          //   child: Row(
-          //     children: [
-          //       Icon(Icons.person,color: Colors.black,),
-          //       SizedBox(
-          //         width: size.width*0.02,
-          //       ),
-          //       Text("Profile",style: TextStyle(color: Colors.black,fontSize: size.width*0.05),),
-          //     ],
-          //   ),
-          // ),
-          // Container(
-          //   margin: EdgeInsets.only(left: size.width*0.04,top: size.height*0.01,bottom: size.height*0.02),
-          //   child: Row(
-          //     children: [
-          //       Icon(Icons.person,color: Colors.black,),
-          //       SizedBox(
-          //         width: size.width*0.02,
-          //       ),
-          //       Text("Profile",style: TextStyle(color: Colors.black,fontSize: size.width*0.05),),
-          //     ],
-          //   ),
-          // ),
-          // Container(
-          //   margin: EdgeInsets.only(left: size.width*0.04,top: size.height*0.01,bottom: size.height*0.02),
-          //   child: Row(
-          //     children: [
-          //       Icon(Icons.person,color: Colors.black,),
-          //       SizedBox(
-          //         width: size.width*0.02,
-          //       ),
-          //       Text("Profile",style: TextStyle(color: Colors.black,fontSize: size.width*0.05),),
-          //     ],
-          //   ),
-          // ),
-
-
         ],
       ),
     );

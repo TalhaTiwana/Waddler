@@ -29,21 +29,25 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   firebase_core: ^1.1.1
-  firebase_auth: ^1.1.4
-  cloud_firestore: ^2.1.0
+  firebase_auth:
+  cloud_firestore:
   google_fonts:
   flutter_signin_button: ^2.0.0
   animated_text_kit: ^4.2.1
   provider:
   email_validator: ^2.0.1
   image_picker: ^0.7.5
-  firebase_storage: ^8.0.6
-  weather: ^2.0.0
-  geolocator: ^7.0.3
+  firebase_storage:
+  weather:
+  geolocator:
   toast: ^0.1.5
   cached_network_image: ^3.0.0
   fancy_shimmer_image: ^2.0.0
-
+  google_maps_flutter:
+  google_maps_place_picker:
+  http:
+  google_place: ^0.4.0
+  google_maps_webservice: ^0.0.19
 
 dev_dependencies:
   flutter_test:

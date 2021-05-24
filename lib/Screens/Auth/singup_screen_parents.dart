@@ -502,7 +502,7 @@ class _SignUpScreenParentsState extends State<SignUpScreenParents> {
     }
   }
 
-  settingModalBottomSheetAddress(BuildContext context, Size size) {
+settingModalBottomSheetAddress(BuildContext context, Size size) {
     showModalBottomSheet(
         isScrollControlled: false,
         context: context,

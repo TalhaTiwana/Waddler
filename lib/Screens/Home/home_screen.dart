@@ -21,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String key = '1c75f13d1c68230fd69b0ca692ed1ac1';
+  String weatherKey = '1c75f13d1c68230fd69b0ca692ed1ac1';
   GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
   WeatherFactory ws;
   List<Weather> _data = [];
@@ -61,7 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Position _geolocator;
   String name;
   Position position;
-  Temperature temperature;
   Weather weather;
   bool searchIsVisible;
    TextEditingController _controller = TextEditingController();
@@ -74,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _geolocator = value;
     });
 
-    ws = new WeatherFactory(key);
+    ws = new WeatherFactory(weatherKey);
     Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((
         value) {
       position = value;
@@ -83,7 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
           position.latitude, position.longitude);
        _data = await ws.fiveDayForecastByLocation(  position.latitude??"33.6844", position.longitude??"73.0479");
      weather.areaName;
-      temperature  =  weather.temperature;
       print(weather.country);
       setState(() {});
     });
@@ -134,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: TextField(
                     controller: _controller,
                     decoration: InputDecoration(
-border: InputBorder.none,
+                  border: InputBorder.none,
                       prefixIcon: Icon(Icons.search),
                       hintText: "Search by city or country"
                     ),
@@ -194,14 +192,21 @@ border: InputBorder.none,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Column(children: [
-                    Container(
-                      margin: EdgeInsets.only(top: size.height * 0.04),
-                      child: Text("${weather.areaName}\n${weather.country}", style: GoogleFonts.varela(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w900,
-                          fontSize: size.width * 0.05
-                      ),textAlign: TextAlign.center,),
-                    ),
+                   Row(
+                     mainAxisAlignment: MainAxisAlignment.center,
+
+                     children: [
+                       SizedBox(),
+                       Container(
+                         margin: EdgeInsets.only(top: size.height * 0.04),
+                         child: Text("${weather.areaName}\n${weather.country}", style: GoogleFonts.varela(
+                             color: Colors.black,
+                             fontWeight: FontWeight.w900,
+                             fontSize: size.width * 0.05
+                         ),textAlign: TextAlign.center,),
+                       ),
+                     ],
+                   ),
                     Container(
                       margin: EdgeInsets.only(top: size.height * 0.01),
                       child: Text("${weather.weatherDescription}", style: GoogleFonts.cabin(
@@ -226,7 +231,7 @@ border: InputBorder.none,
                         children: [
                           Container(
                             margin: EdgeInsets.only(top: size.height * 0.01),
-                            child: Text("${temperature.celsius.toString().split('.').first} C", style: GoogleFonts.cabin(
+                            child: Text("${weather.temperature.celsius.toString().split('.').first==null?"Loading...":weather.temperature.celsius.toString().split('.').first} C", style: GoogleFonts.cabin(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w500,
                                 fontSize: size.width * 0.07
@@ -261,7 +266,9 @@ border: InputBorder.none,
                         ],),
                     ),
                   ],),
-
+                  Container(
+                    child: Text(""),
+                  ),
                   /// Today
                   Column(children: [
                     Container(
@@ -282,10 +289,10 @@ border: InputBorder.none,
                           children: [
                             /// Max Temp
                             Container(
-                              height: size.height * 0.1,
+                              height: size.height * 0.08,
                               width: size.width * 0.22,
                               margin: EdgeInsets.symmetric(
-                                  horizontal: size.width * 0.03),
+                                  horizontal: size.width * 0.025),
                               decoration: BoxDecoration(
                                   color:Colors.white ,
                                   borderRadius: BorderRadius.circular(25),
@@ -449,7 +456,6 @@ border: InputBorder.none,
                                 ],
                               ),
                             ),
-
 
                             /// Min Temp
                             Container(
@@ -621,9 +627,8 @@ border: InputBorder.none,
                         )
                     )
                   ],),
-
-
                   /// Tomorrow
+
                   Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -714,7 +719,9 @@ border: InputBorder.none,
                         ),
                       ):Container()
                     ],
-                  )
+                  ),
+
+
                 ],
               ),
             ),

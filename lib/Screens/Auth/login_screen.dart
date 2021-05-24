@@ -273,7 +273,7 @@ singIn(BuildContext context)async{
     if(errorOnPassword ==null && errorOnEmail == null){
      var data  = await  Authentication().signInWithEmail(email: _controllerEmail.text,password: _controllerPassword.text,context: context);
      if(data!=null){
-       screenPush(context, HomeScreen());
+       screenPushRep(context, HomeScreen());
        setState(() {
          loading = false;
        });

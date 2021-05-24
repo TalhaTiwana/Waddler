@@ -4,7 +4,6 @@ import 'package:waddler/CareCenterList.dart';
 import 'package:waddler/Feedback.dart';
 import 'package:waddler/Help.dart';
 import 'package:waddler/Notification.dart';
-import 'package:waddler/main.dart';
 
 class Settings extends StatelessWidget {
   @override

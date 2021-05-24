@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomTextField extends StatelessWidget {
-   CustomTextField({Key key, this.controller, this.onChange, this.hintText, this.prefixIcon, this.keyBoardType, this.errorText}) : super(key: key);
-
+   CustomTextField({Key key, this.controller, this.onChange, this.hintText, this.prefixIcon, this.keyBoardType, this.errorText, this.suffixIcon, this.readOnly:false}) : super(key: key);
+    final suffixIcon;
     final controller;
     final Function onChange;
     final hintText;
     final prefixIcon;
     final keyBoardType;
     final errorText;
+    final readOnly;
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -21,10 +22,12 @@ class CustomTextField extends StatelessWidget {
           keyboardType: keyBoardType,
           onChanged: onChange,
           controller: controller,
+          readOnly: readOnly,
           textAlignVertical: TextAlignVertical.center,
           decoration: InputDecoration(
               alignLabelWithHint: true,
               errorText: errorText,
+              suffixIcon: suffixIcon,
               prefixIcon: Icon(prefixIcon),
               border: InputBorder.none,
               hintText: "$hintText",
@@ -50,7 +53,7 @@ class CustomTextField extends StatelessWidget {
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withOpacity(0.4),
                 ),
                 borderRadius: BorderRadius.circular(20),
               ),

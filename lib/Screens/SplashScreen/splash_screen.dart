@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:waddler/Common/common_functions.dart';
 import 'package:waddler/Screens/Auth/login_screen.dart';
+import 'package:waddler/Screens/FetchingDaycareCenters/Fetching_daycare_centers.dart';
 import 'package:waddler/Screens/Home/home_screen.dart';
 import 'package:waddler/Style/colors.dart';
 
@@ -85,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen> {
           if (user == null) {
             screenPushRep(context, LoginScreen());
           } else {
-            screenPushRep(context, HomeScreen());
+            screenPushRep(context, FDC());
           }
         });
       });
