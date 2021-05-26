@@ -5,7 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:toast/toast.dart';
 import 'package:waddler/Common/common_functions.dart';
 import 'package:waddler/Screens/Auth/login_screen.dart';
+import 'package:waddler/Screens/ChatMedium.dart';
 import 'package:waddler/Screens/FetchingDaycareCenters/Fetching_daycare_centers.dart';
+import 'package:waddler/Screens/GPSTracking/gps-tracking.dart';
+import 'package:waddler/Screens/LiveSurveillance/live_surveillance.dart';
+import 'package:waddler/Screens/OnlinePayment/online_payment.dart';
 import 'package:waddler/Screens/Profile/profile.dart';
 import 'package:waddler/Style/colors.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -118,61 +122,86 @@ class _CustomDrawerState extends State<CustomDrawer> {
              ],
            ),
          ),
-          InkWell(
+          drawerTile(
+            size: size,
             onTap: (){
               Navigator.pop(context);
-             screenPush(context, Profile());
+              screenPush(context, Profile());
             },
-            child: Container(
-              margin: EdgeInsets.only(left: size.width*0.04,top: size.height*0.03,bottom: size.height*0.02),
-              child: Row(
-                children: [
-                  Icon(Icons.person,color: Colors.black,),
-                 SizedBox(
-                   width: size.width*0.02,
-                 ),
-                 Text("Profile",style: TextStyle(color: Colors.black,fontSize: size.width*0.05),),
-                ],
-              ),
-            ),
+           title: "Profile" ,
+            icon: Icons.person
           ),
 
-          InkWell(
-            onTap: (){
-              Navigator.pop(context);
-              screenPush(context, FDC());
-            },
-            child: Container(
-              margin: EdgeInsets.only(left: size.width*0.04,top: size.height*0.01,bottom: size.height*0.02),
-              child: Row(
-                children: [
-                  Icon(Icons.home,color: Colors.black,),
-                  SizedBox(
-                    width: size.width*0.02,
-                  ),
-                  Text("Daycare Center",style: TextStyle(color: Colors.black,fontSize: size.width*0.045),),
-                ],
-              ),
-            ),
+          drawerTile(
+              size: size,
+              onTap: (){
+                Navigator.pop(context);
+                screenPush(context, FDC());
+              },
+              title: "Daycare Center" ,
+              icon: Icons.home
           ),
 
-          InkWell(
-            onTap: (){
-              _showDialog(size,context);
-            },
-            child: Container(
-              margin: EdgeInsets.only(left: size.width*0.04,top: size.height*0.01,bottom: size.height*0.02),
-              child: Row(
-                children: [
-                  Icon(Icons.logout,color: Colors.black,),
-                  SizedBox(
-                    width: size.width*0.02,
-                  ),
-                  Text("LogOut",style: TextStyle(color: Colors.black,fontSize: size.width*0.045),),
-                ],
-              ),
-            ),
+
+
+          drawerTile(
+              size: size,
+              onTap: (){
+                Navigator.pop(context);
+                screenPush(context, Surveillance());
+              },
+              title: "Live Surveillance" ,
+              icon: Icons.live_help_outlined
           ),
+
+          drawerTile(
+              size: size,
+              onTap: (){
+                Navigator.pop(context);
+                screenPush(context, GPSTracking());
+              },
+              title: "GPS Tracking" ,
+              icon: Icons.gps_fixed
+          ),
+
+          drawerTile(
+              size: size,
+              onTap: (){
+
+              },
+              title: "Chat Medium" ,
+              icon: Icons.chat
+          ),
+
+          drawerTile(
+              size: size,
+              onTap: (){
+                Navigator.pop(context);
+                screenPush(context, OnlinePayment());
+              },
+              title: "Online Payment" ,
+              icon: Icons.monetization_on_outlined
+          ),
+
+          drawerTile(
+              size: size,
+              onTap: (){
+                Navigator.pop(context);
+                screenPush(context, OnlinePayment());
+              },
+              title: "Configuration" ,
+              icon: Icons.confirmation_num
+          ),
+
+          drawerTile(
+              size: size,
+              onTap: (){
+                _showDialog(size,context);
+              },
+              title: "LogOut" ,
+              icon: Icons.logout
+          ),
+
         ],
       ),
     );
@@ -208,4 +237,21 @@ class _CustomDrawerState extends State<CustomDrawer> {
     );
   }
 
+  Widget drawerTile({Size size,IconData icon,String title,Function onTap}){
+    return        InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.only(left: size.width*0.04,top: size.height*0.01,bottom: size.height*0.02),
+        child: Row(
+          children: [
+            Icon(icon,color: Colors.black,),
+            SizedBox(
+              width: size.width*0.02,
+            ),
+            Text("$title",style: TextStyle(color: Colors.black,fontSize: size.width*0.045),),
+          ],
+        ),
+      ),
+    );
+  }
 }

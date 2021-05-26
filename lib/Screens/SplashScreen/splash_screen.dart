@@ -86,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen> {
           if (user == null) {
             screenPushRep(context, LoginScreen());
           } else {
-            screenPushRep(context, FDC());
+            screenPushRep(context, HomeScreen());
           }
         });
       });
